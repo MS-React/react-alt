@@ -1,23 +1,19 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'react-router-redux';
-import Main from './Main';
+import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import LoginPage from './pages/login/LoginPage';
+import NotFoundPage from './pages/not_found/NotFoundPage';
+import HomePage from './pages/home/HomePage';
 
-class App extends React.Component {
-  static propTypes = {
-    store: PropTypes.object.isRequired,
-    history: PropTypes.object.isRequired,
-  };
-
+export class App extends React.Component {
   render() {
-    const { store, history } = this.props;
     return (
-      <Provider store={store}>
-        <ConnectedRouter history={history}>
-          <Main />
-        </ConnectedRouter>
-      </Provider>
+      <BrowserRouter>
+        <Switch>
+          <Route exact path="/" component={HomePage} />
+          <Route path="/login" component={LoginPage} />
+          <Route component={NotFoundPage} />
+        </Switch>
+      </BrowserRouter>
     );
   }
 }

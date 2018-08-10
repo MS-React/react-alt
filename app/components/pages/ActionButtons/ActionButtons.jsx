@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'reactstrap';
-import { connect } from 'react-redux';
 import MsModal from '../../common/modal/MsModal';
 import UsersForm from '../UsersForm/UsersForm';
 import { EMAIL_REGEXP } from '../../../constants';
+import UserStore from '../../../stores/UsersStore';
 
 import './ActionButtons.scss';
 
@@ -19,6 +19,12 @@ const DEFAULT_USER_MODAL_LABELS = {
   confirmButtonText: 'Save',
 };
 
+
+function getStateFromStore() {
+  return {
+    user: UserStore.getState().selectedUser,
+  };
+}
 export class ActionButtons extends React.Component {
   static propTypes = {
     user: PropTypes.object,
@@ -40,6 +46,10 @@ export class ActionButtons extends React.Component {
     };
   }
 
+  componentDidMount() {
+    UserStore.listen(this.onStoreChange);
+  }
+
   componentWillReceiveProps({ user: newUser }) {
     const { user: currentSelectedUser } = this.props;
 
@@ -50,6 +60,17 @@ export class ActionButtons extends React.Component {
         },
       });
     }
+  }
+
+  componentWillUnmount() {
+    UserStore.unlisten(this.onStoreChange);
+  }
+
+  onStoreChange = () => {
+    const { user } = getStateFromStore();
+    this.setState({
+      user,
+    });
   }
 
   getModalBody = () => {
@@ -219,10 +240,4 @@ export class ActionButtons extends React.Component {
   }
 }
 
-export function mapStateToProps({ users }) {
-  return {
-    user: users.selectedUser,
-  };
-}
-
-export default connect(mapStateToProps)(ActionButtons);
+export default ActionButtons;

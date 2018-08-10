@@ -1,8 +1,9 @@
 import Service from './service';
+import { DEFAULT_PAGINATION_QUERY } from '../constants';
 
 const restUserModelEndpointApi = 'users';
 
-export function fetchUsers(params = {}) {
+export function fetchUsers(params = DEFAULT_PAGINATION_QUERY) {
   return Service.get(restUserModelEndpointApi, params);
 }
 
