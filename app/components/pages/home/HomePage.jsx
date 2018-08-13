@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Col, Row } from 'reactstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
@@ -16,7 +15,6 @@ function getStateFromStore() {
   };
 }
 class HomePage extends React.Component {
-
   state = {
     selectedRow: [],
     user: {},
@@ -46,23 +44,17 @@ class HomePage extends React.Component {
   };
 
   handleUserActionType = (type = 'add', user) => {
-    //const { usersActions: actions } = this.props;
-    const actions = {
-      createUser: () => {},
-      updateUser: () => {},
-      deleteUser: () => {},
-    };
     let action = () => {};
 
     switch (type) {
       case 'add':
-        action = actions.createUser;
+        action = UsersActions.createUser;
         break;
       case 'edit':
-        action = actions.updateUser;
+        action = UsersActions.updateUser;
         break;
       case 'delete':
-        action = actions.deleteUser;
+        action = UsersActions.deleteUser;
         break;
       default:
         errorService.logErrors('Invalid User action Type', 'HomePage.jsx');

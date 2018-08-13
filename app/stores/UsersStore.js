@@ -1,6 +1,7 @@
 import alt from '../alt';
 import { completeAssign } from '../utils/functions';
 import UserActions from '../actions/usersActions';
+import getUserId from '../utils/user';
 
 class UserStore {
   constructor() {
@@ -10,6 +11,8 @@ class UserStore {
       onReceivedUsers: UserActions.RECEIVED_USERS,
       // onReceivedUser: UserActions.RECEIVED_USER,
       onDelete: UserActions.DELETE_USER,
+      onCreatedUser: UserActions.CREATED_USER,
+      onError: UserActions.ON_ERROR,
     });
     // state
     this.users = [];
@@ -28,25 +31,27 @@ class UserStore {
     this.selectedUser = user;
   }
 
-  onCreate(user) {
+  onCreatedUser(user) {
+    this.users = [
+      user,
+      ...this.users,
+    ];
   }
 
-  onUpdate() {
-
+  onUpdateUser(user) {
+    this.users = [
+      user,
+      ...this.users.filter(usr => getUserId(usr) !== getUserId(user)),
+    ];
   }
 
-  onDelete() {
-
+  onDeleteUser(user) {
+    this.users = this.users.filter(usr => getUserId(user) !== getUserId(usr));
   }
 
-  onGetAll() {
-
+  static onError(error) {
+    errorService.logErrors(error);
   }
-
-  onError() {
-    console.log('error');
-  }
-
 }
 
 export default alt.createStore(UserStore);
