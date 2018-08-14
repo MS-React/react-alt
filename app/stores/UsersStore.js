@@ -10,8 +10,9 @@ class UserStore {
       onSelectUser: UserActions.SELECT_USER,
       onReceivedUsers: UserActions.RECEIVED_USERS,
       // onReceivedUser: UserActions.RECEIVED_USER,
-      onDelete: UserActions.DELETE_USER,
-      onCreatedUser: UserActions.CREATED_USER,
+      onDeleteUser: UserActions.DELETE_USER,
+      onUpdateUser: UserActions.UPDATE_USER,
+      onCreateUser: UserActions.CREATED_USER,
       onError: UserActions.ON_ERROR,
     });
     // state
@@ -31,7 +32,7 @@ class UserStore {
     this.selectedUser = user;
   }
 
-  onCreatedUser(user) {
+  onCreateUser(user) {
     this.users = [
       user,
       ...this.users,
@@ -49,7 +50,7 @@ class UserStore {
     this.users = this.users.filter(usr => getUserId(user) !== getUserId(usr));
   }
 
-  static onError(error) {
+  onError(error) {
     errorService.logErrors(error);
   }
 }
