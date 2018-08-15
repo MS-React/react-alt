@@ -16,7 +16,7 @@ describe('<LoginPage /> component', () => {
     expect(wrapper.find('section')).toHaveLength(1);
     expect(wrapper.find('LoginForm')).toHaveLength(1);
   });
-
+  /**
   it('should handle form submit itself', () => {
     const login = jest.fn();
     const wrapper = setup({
@@ -70,4 +70,5 @@ describe('<LoginPage /> component', () => {
       expect(Object.keys(props.actions)).toEqual(expectedActions);
     });
   });
+   */
 });
