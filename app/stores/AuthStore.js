@@ -1,7 +1,7 @@
 import alt from '../alt';
 import AuthActions from '../actions/authActions';
 
-class AuthStore {
+export class AuthStore {
   constructor() {
     // handle store listeners
     this.bindListeners({

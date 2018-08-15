@@ -20,7 +20,10 @@ export class LoginPage extends React.Component {
 
   state = {
     auth: {
-      error: null,
+      error: {
+        code: null,
+        message: null,
+      },
       user: null,
     },
   };

@@ -1,7 +1,8 @@
 import React from 'react';
-import { shallow } from 'enzyme';
-import initialState from '../../../reducers/initialState';
-import { LoginPage, mapDispatchToProps, mapStateToProps } from './LoginPage';
+import { shallow, mount } from 'enzyme';
+import { LoginPage } from './LoginPage';
+import authActions from '../../../actions/authActions';
+import AuthStore from '../../../stores/AuthStore';
 
 function setup(props) {
   return shallow(<LoginPage {...props} />);
@@ -9,66 +10,81 @@ function setup(props) {
 
 describe('<LoginPage /> component', () => {
   it('renders itself', () => {
+    // Arrange
     const wrapper = setup({
-      actions: {},
+      history: {
+        push: jest.fn,
+      },
     });
 
+    // Assert
     expect(wrapper.find('section')).toHaveLength(1);
     expect(wrapper.find('LoginForm')).toHaveLength(1);
   });
-  /**
-  it('should handle form submit itself', () => {
-    const login = jest.fn();
+
+  it('should subscribe to store event when component is mounted', () => {
+    // Arrange
+    const lintenSpy = spyOn(AuthStore, 'listen').and.callThrough();
+    const componentWillMountSpy = spyOn(LoginPage.prototype, 'componentDidMount').and.callThrough();
     const wrapper = setup({
-      actions: {
-        login,
+      history: {
+        push: jest.fn,
       },
     });
-    const form = wrapper.find('LoginForm');
 
-    form.simulate('submit');
-
-    expect(login).toHaveBeenCalledTimes(1);
+    // Assert
+    expect(componentWillMountSpy).toHaveBeenCalledTimes(1);
+    expect(lintenSpy).toHaveBeenCalledTimes(1);
   });
 
-  describe('mapStateToProps functions', () => {
-    it('should return the initial state of auth module', () => {
-      const expectedProps = {
-        authenticating: false,
-        isAuthenticated: false,
-        error: false,
-        errorMessage: null,
-        user: null,
-      };
-
-      const props = mapStateToProps(Object.assign({}, initialState));
-
-      expect(props).toEqual(expectedProps);
+  it('should unsubscribe to sor event when component is unmounted', () => {
+    // Arrange
+    const unlistenSpy = spyOn(AuthStore, 'unlisten').and.callThrough();
+    const componentWillMountSpy = spyOn(LoginPage.prototype, 'componentWillUnmount').and.callThrough();
+    const wrapper = setup({
+      history: {
+        push: jest.fn,
+      },
     });
+
+    // Act
+    wrapper.instance().componentWillUnmount();
+    wrapper.update();
+
+    // Assert
+    expect(componentWillMountSpy).toHaveBeenCalledTimes(1);
+    expect(unlistenSpy).toHaveBeenCalledTimes(1);
+  });
+  
+  it('should handle form submit', () => {
+    // Arrange
+    const loginSpy = jest.spyOn(authActions, 'login');
+    const wrapper = setup({
+      history: {
+        push: jest.fn,
+      },
+    });
+
+    // Act
+    wrapper.instance().handleOnSubmit('username', 'password');
+ 
+    // Assert
+    expect(loginSpy).toHaveBeenCalledTimes(1);
   });
 
-  describe('mapDispatchToProps functions', () => {
-    it('actions prop should be defined', () => {
-      const dispatch = () => {};
-
-      const props = mapDispatchToProps(dispatch);
-
-      expect(props.actions).toBeDefined();
+  it('should redirect to home page when user is authenticated', () => {
+    // Arrange
+    const pushSpy = jest.fn();
+    const wrapper = setup({
+      history: {
+        push: pushSpy,
+      }
     });
 
-    it('should return the binded actions', () => {
-      const dispatch = () => {};
-      const expectedActions = [
-        'loginRequest',
-        'loginSuccess',
-        'loginFailed',
-        'login',
-      ];
+    // Act
+    wrapper.instance().authenticate(true);
 
-      const props = mapDispatchToProps(dispatch);
-
-      expect(Object.keys(props.actions)).toEqual(expectedActions);
-    });
+    // Assert
+    expect(pushSpy).toHaveBeenCalledTimes(1);
   });
-   */
 });
