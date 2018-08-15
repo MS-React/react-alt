@@ -1,6 +1,6 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
-import { ActionButtons, mapStateToProps } from './ActionButtons';
+import { shallow } from 'enzyme';
+import { ActionButtons } from './ActionButtons';
 import UserStore from '../../../stores/UsersStore';
 
 const defaultProps = {
@@ -29,11 +29,6 @@ describe('<ActionButtons />', () => {
 
   it('should subscribe to store event when component is mounted', () => {
     // Arrange
-    const props = {
-      history: {
-        push: jest.fn,
-      },
-    }
     const lintenSpy = spyOn(UserStore, 'listen').and.callThrough();
     const componentWillMountSpy = spyOn(ActionButtons.prototype, 'componentDidMount').and.callThrough();
     const wrapper = setup({
@@ -46,12 +41,6 @@ describe('<ActionButtons />', () => {
   });
 
   it('should unsubscribe to sor event when component is unmounted', () => {
-    // Arrange
-    const props = {
-      history: {
-        push: jest.fn,
-      },
-    }
     const unlistenSpy = spyOn(UserStore, 'unlisten').and.callThrough();
     const componentWillMountSpy = spyOn(ActionButtons.prototype, 'componentWillUnmount').and.callThrough();
     const wrapper = setup({

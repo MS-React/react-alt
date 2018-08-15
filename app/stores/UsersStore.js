@@ -2,6 +2,7 @@ import alt from '../alt';
 import { completeAssign } from '../utils/functions';
 import UserActions from '../actions/usersActions';
 import getUserId from '../utils/user';
+import errorService from '../utils/errorService';
 
 class UserStore {
   constructor() {
