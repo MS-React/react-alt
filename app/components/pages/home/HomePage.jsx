@@ -14,6 +14,7 @@ function getStateFromStore() {
     users: UserStore.getState().users,
   };
 }
+
 class HomePage extends React.Component {
   state = {
     selectedRow: [],
@@ -40,8 +41,12 @@ class HomePage extends React.Component {
   setSelectedRow = (user) => {
     this.setState({
       selectedRow: [user.id],
-    }, () => UsersActions.selectUser(user));
-  };
+    }, this.selectUser(user));
+  }
+
+  selectUser = (user) => {
+    UsersActions.selectUser(user);
+  }
 
   handleUserActionType = (type = 'add', user) => {
     let action = () => {};

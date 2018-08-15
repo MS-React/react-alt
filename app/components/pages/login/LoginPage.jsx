@@ -1,28 +1,67 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import * as authActions from '../../../actions/authActions';
 import LoginForm from './LoginForm';
+import authActions from '../../../actions/authActions';
+import AuthStore from '../../../stores/AuthStore';
 
 import './LoginPage.scss';
 
+function getStateFromStore() {
+  return {
+    auth: AuthStore.getState().auth,
+  };
+}
+
 export class LoginPage extends React.Component {
   static propTypes = {
-    actions: PropTypes.object.isRequired,
+    history: PropTypes.object.isRequired,
   };
 
-  handleOnSubmit = (username, password) => {
-    this.props.actions.login({ username, password });
+  state = {
+    auth: {
+      error: {
+        code: null,
+        message: null,
+      },
+      user: null,
+    },
   };
+
+  componentDidMount() {
+    AuthStore.listen(this.onStoreChange);
+  }
+
+  componentWillUnmount() {
+    AuthStore.unlisten(this.onStoreChange);
+  }
+
+  onStoreChange = () => {
+    const { auth } = getStateFromStore();
+    this.setState({
+      auth,
+    }, this.authenticate(auth.authenticated));
+  }
+
+  authenticate = (authenticated) => {
+    if (authenticated) {
+      this.props.history.push('/');
+    }
+  }
+
+  handleOnSubmit = (username, password) => {
+    authActions.login({ username, password });
+  }
 
   render() {
     return (
       <section className="login-page">
         <div className="login-page--form">
-          <LoginForm onSubmit={this.handleOnSubmit} />
+          <LoginForm onSubmit={this.handleOnSubmit} error={this.state.auth.error} />
         </div>
       </section>
     );
   }
 }
 
-export default LoginPage;
+export default withRouter(LoginPage);

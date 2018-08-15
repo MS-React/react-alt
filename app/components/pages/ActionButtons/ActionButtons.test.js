@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { ActionButtons, mapStateToProps } from './ActionButtons';
-import initialState from '../../../reducers/initialState';
+import { ActionButtons } from './ActionButtons';
+import UserStore from '../../../stores/UsersStore';
 
 const defaultProps = {
   user: {},
@@ -11,11 +11,8 @@ const defaultProps = {
 
 function setup(props) {
   const componentProps = { ...defaultProps, ...props };
-  return shallow(
-    <ActionButtons
-      {...componentProps}
-    />,
-  );
+  
+  return shallow(<ActionButtons {...componentProps} />);
 }
 
 describe('<ActionButtons />', () => {
@@ -30,19 +27,33 @@ describe('<ActionButtons />', () => {
     expect(wrapper.find('MsModal')).toHaveLength(1);
   });
 
-  describe('mapStateToProps function', () => {
-    it('should return the initial state', () => {
-      // Arrange
-      const expectedProps = {
-        user: {},
-      };
-
-      // Act
-      const props = mapStateToProps(Object.assign({}, initialState));
-
-      // Assert
-      expect(props).toEqual(expectedProps);
+  it('should subscribe to store event when component is mounted', () => {
+    // Arrange
+    const lintenSpy = spyOn(UserStore, 'listen').and.callThrough();
+    const componentWillMountSpy = spyOn(ActionButtons.prototype, 'componentDidMount').and.callThrough();
+    const wrapper = setup({
+      user: {},
     });
+
+    // Assert
+    expect(componentWillMountSpy).toHaveBeenCalledTimes(1);
+    expect(lintenSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should unsubscribe to sor event when component is unmounted', () => {
+    const unlistenSpy = spyOn(UserStore, 'unlisten').and.callThrough();
+    const componentWillMountSpy = spyOn(ActionButtons.prototype, 'componentWillUnmount').and.callThrough();
+    const wrapper = setup({
+      user: {},
+    });
+
+    // Act
+    wrapper.instance().componentWillUnmount();
+    wrapper.update();
+
+    // Assert
+    expect(componentWillMountSpy).toHaveBeenCalledTimes(1);
+    expect(unlistenSpy).toHaveBeenCalledTimes(1);
   });
 
   describe('componentWillReceiveProps function', () => {

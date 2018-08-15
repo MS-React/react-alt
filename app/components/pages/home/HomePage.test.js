@@ -1,254 +1,145 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { HomePage, mapDispatchToProps, mapStateToProps } from './HomePage';
-import initialState from '../../../reducers/initialState';
+import HomePage from './HomePage';
+import UserStore from '../../../stores/UsersStore';
+import UsersActions from '../../../actions/usersActions';
 
 function setup(props) {
   return shallow(<HomePage {...props} />);
 }
 
 describe('<HomePage /> component', () => {
+  
   it('renders itself', () => {
-    // Arrange Act
-    const wrapper = setup({
-      usersActions: {
-        getUsers: jest.fn(),
-        selectUser: jest.fn(),
-      },
-    });
+    // Arrange
+    const wrapper = setup();
 
     // Assert
     expect(wrapper.find('Header')).toHaveLength(1);
     expect(wrapper.find('.container')).toHaveLength(1);
   });
 
-  describe('mapStateToProps functions', () => {
-    it('should return the initial state of users module', () => {
-      // Arrange
-      const expectedProps = {
-        users: [],
-      };
+  it('should call getAll action when component is mounted', () => {
+    // Arrange
+    const getAllSpy = jest.spyOn(UsersActions, 'getAll');
+    
+    const wrapper = setup();
 
-      // Act
-      const props = mapStateToProps(Object.assign({}, initialState));
-
-      // Assert
-      expect(props).toEqual(expectedProps);
-    });
+    // Assert
+    expect(getAllSpy).toHaveBeenCalledTimes(1);
   });
 
-  describe('mapDispatchToProps functions', () => {
-    it('usersActions prop should be defined', () => {
-      // Arrange
-      const dispatch = () => {};
-
-      // Act
-      const props = mapDispatchToProps(dispatch);
-
-      // Assert
-      expect(props.usersActions).toBeDefined();
+  it('should subscribe to store event when component is mounted', () => {
+    // Arrange
+    const lintenSpy = spyOn(UserStore, 'listen').and.callThrough();
+    const componentWillMountSpy = spyOn(HomePage.prototype, 'componentDidMount').and.callThrough();
+    const wrapper = setup({
+      user: {},
     });
 
-    it('should return the binded actions', () => {
-      // Arrange
-      const dispatch = () => {};
-      const expectedActions = [
-        'loadingUsersBegin',
-        'loadingUsersComplete',
-        'loadingUsersFailed',
-        'createUsersSuccess',
-        'selectUsersSuccess',
-        'getUsersSuccess',
-        'updateUsersSuccess',
-        'deleteUsersSuccess',
-        'selectUser',
-        'deleteUser',
-        'updateUser',
-        'createUser',
-        'getUsers',
-      ];
-
-      // Act
-      const props = mapDispatchToProps(dispatch);
-
-      // Assert
-      expect(Object.keys(props.usersActions)).toEqual(expectedActions);
-    });
+    // Assert
+    expect(componentWillMountSpy).toHaveBeenCalledTimes(1);
+    expect(lintenSpy).toHaveBeenCalledTimes(1);
   });
 
-  describe('setSelectedRow handler', () => {
-    it('should select user', () => {
+  it('should unsubscribe to sor event when component is unmounted', () => {
+    // Arrange
+    const unlistenSpy = spyOn(UserStore, 'unlisten').and.callThrough();
+    const componentWillMountSpy = spyOn(HomePage.prototype, 'componentWillUnmount').and.callThrough();
+    const wrapper = setup({
+      user: {},
+    });
+
+    // Act
+    wrapper.instance().componentWillUnmount();
+    wrapper.update();
+
+    // Assert
+    expect(componentWillMountSpy).toHaveBeenCalledTimes(1);
+    expect(unlistenSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call selectUser action when row is selected', () => {
+    // Act
+    const selectUserSpy = spyOn(UsersActions, 'selectUser').and.callThrough();
+    const wrapper = setup({
+      user: {},
+    });
+
+    wrapper.instance().setSelectedRow({ id: 'id' });
+
+    // Assert
+    expect(wrapper.state().selectedRow).toEqual(['id']);
+    expect(selectUserSpy).toHaveBeenCalledTimes(1);
+  });
+
+  describe('should handle user action by type', () => {
+    it('should call errorService when type is not assigned', () => {
       // Arrange
+      const type = 'test';
       const user = {
-        id: 'id',
+        id: 'id'
       };
-      const selectUser = jest.fn();
-      const wrapper = setup({
-        usersActions: {
-          selectUser,
-          getUsers: () => {},
-          createUser: () => {},
-          updateUser: () => {},
-          deleteUser: () => {},
-        },
-      });
+      const createUserSpy = spyOn(UsersActions, 'createUser').and.callThrough();
+      const updateUserSpy = spyOn(UsersActions, 'updateUser').and.callThrough();
+      const deleteUserSpy = spyOn(UsersActions, 'deleteUser').and.callThrough();
+      const wrapper = setup();
 
       // Act
-      wrapper.instance().setSelectedRow(user);
+      wrapper.instance().handleUserActionType(type, user);
 
       // Assert
-      expect(selectUser).toHaveBeenCalledTimes(1);
+      expect(createUserSpy).toHaveBeenCalledTimes(0);
+      expect(updateUserSpy).toHaveBeenCalledTimes(0);
+      expect(deleteUserSpy).toHaveBeenCalledTimes(0);
     });
 
-    it('should select user', () => {
-      // Arrange
-      const user = {
-        id: 'id',
-      };
-      const selectUser = jest.fn();
-      const wrapper = setup({
-        usersActions: {
-          selectUser: 'text',
-          getUsers: () => {},
-          createUser: () => {},
-          updateUser: () => {},
-          deleteUser: () => {},
-        },
-      });
-
-      // Act
-      wrapper.instance().setSelectedRow(user);
-
-      // Assert
-      expect(selectUser).toHaveBeenCalledTimes(0);
-    });
-  });
-
-  describe('handleUserActionType handler', () => {
     it('should return Add handler', () => {
       // Arrange
       const type = 'add';
       const user = {
-        id: 'id',
+        id: 'id'
       };
-      const createUser = jest.fn();
-      const wrapper = setup({
-        usersActions: {
-          selectUser: () => {},
-          getUsers: () => {},
-          createUser,
-          updateUser: () => {},
-          deleteUser: () => {},
-        },
-      });
+      const createUserSpy = spyOn(UsersActions, 'createUser').and.callThrough();
+      const wrapper = setup();
 
       // Act
       wrapper.instance().handleUserActionType(type, user);
 
       // Assert
-      expect(createUser).toHaveBeenCalledTimes(1);
+      expect(createUserSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('should return Edit handler', () => {
+    it('should return Update handler', () => {
       // Arrange
       const type = 'edit';
       const user = {
-        id: 'id',
+        id: 'id'
       };
-      const updateUser = jest.fn();
-      const wrapper = setup({
-        usersActions: {
-          selectUser: () => {},
-          getUsers: () => {},
-          createUser: () => {},
-          updateUser,
-          deleteUser: () => {},
-        },
-      });
+      const updateUserSpy = spyOn(UsersActions, 'updateUser').and.callThrough();
+      const wrapper = setup();
 
       // Act
       wrapper.instance().handleUserActionType(type, user);
 
       // Assert
-      expect(updateUser).toHaveBeenCalledTimes(1);
+      expect(updateUserSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should return Delete handler', () => {
       // Arrange
       const type = 'delete';
       const user = {
-        id: 'id',
+        id: 'id'
       };
-      const deleteUser = jest.fn();
-      const wrapper = setup({
-        usersActions: {
-          selectUser: () => {},
-          getUsers: () => {},
-          createUser: () => {},
-          updateUser: () => {},
-          deleteUser,
-        },
-      });
+      const deleteUserSpy = spyOn(UsersActions, 'deleteUser').and.callThrough();
+      const wrapper = setup();
 
       // Act
       wrapper.instance().handleUserActionType(type, user);
 
       // Assert
-      expect(deleteUser).toHaveBeenCalledTimes(1);
-    });
-
-    it('should return add Handler when type is other than add, edit, delete', () => {
-      // Arrange
-      const type = 'other';
-      const user = {
-        id: 'id',
-      };
-      const selectUser = jest.fn();
-      const createUser = jest.fn();
-      const deleteUser = jest.fn();
-      const updateUser = jest.fn();
-      const wrapper = setup({
-        usersActions: {
-          selectUser,
-          getUsers: () => {},
-          createUser,
-          updateUser,
-          deleteUser,
-        },
-      });
-
-      // Act
-      wrapper.instance().handleUserActionType(type, user);
-
-      // Assert
-      expect(selectUser).toHaveBeenCalledTimes(0);
-      expect(createUser).toHaveBeenCalledTimes(0);
-      expect(deleteUser).toHaveBeenCalledTimes(0);
-      expect(updateUser).toHaveBeenCalledTimes(0);
-    });
-
-    it('should return Add as default handler when no type is passed', () => {
-      // Arrange
-      const type = undefined;
-      const user = {
-        id: 'id',
-      };
-      const createUser = jest.fn();
-      const wrapper = setup({
-        usersActions: {
-          selectUser: () => {},
-          getUsers: () => {},
-          createUser,
-          updateUser: () => {},
-          deleteUser: () => {},
-        },
-      });
-
-      // Act
-      wrapper.instance().handleUserActionType(type, user);
-
-      // Assert
-      expect(createUser).toHaveBeenCalledTimes(1);
+      expect(deleteUserSpy).toHaveBeenCalledTimes(1);
     });
   });
 });

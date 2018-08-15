@@ -6,10 +6,7 @@ import {
   deleteUsers,
 } from '../services/userService';
 import { omit } from '../utils/functions';
-import {
-  DEFAULT_USER_VALID_ID_PATHS,
-  DEFAULT_PAGINATION_QUERY,
-} from '../constants';
+import { DEFAULT_USER_VALID_ID_PATHS } from '../constants';
 import getUserId from '../utils/user';
 
 class UserActions {

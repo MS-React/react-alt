@@ -25,6 +25,7 @@ function getStateFromStore() {
     user: UserStore.getState().selectedUser,
   };
 }
+
 export class ActionButtons extends React.Component {
   static propTypes = {
     user: PropTypes.object,
